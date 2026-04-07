@@ -13,6 +13,7 @@ module.exports = defineConfig({
   fullyParallel: true,
   use: {
     storageState,
+    headless: true,
     baseURL: "https://github.com",
     viewport: { width: 1280, height: 720 },
   },
