@@ -18,9 +18,10 @@ test("after adding a comment via UI, it should be visible via API", async ({
   // 3. Add a comment via UI
   const suffix = await hlpPW.getRandomLetters(8);
   const commentText = `UI comment ${suffix}`;
+  // Use pressSequentially instead of fill — GitHub's editor drops input when typed too fast
   await page
     .getByPlaceholder("Use Markdown to format your comment")
-    .fill(commentText);
+    .pressSequentially(commentText);
   await Promise.all([
     hlpPW.waitForGraphQL(page, "addCommentMutation"),
     page.getByRole("button", { name: "Comment", exact: true }).click(),
