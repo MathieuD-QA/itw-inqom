@@ -15,11 +15,7 @@ test("after creating an issue via UI, it should be visible in the UI", async ({
   // 1. Navigate to issues list and open the creation form
   await page.goto(`https://github.com/${owner}/${repo}/issues`);
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      return response.url().includes("CreateIssueDialogEntryQuery");
-    }),
+    hlpPW.waitForGraphQL(page, "CreateIssueDialogEntryQuery"),
     page.getByRole("link", { name: "New issue" }).click(),
   ]);
 
@@ -29,12 +25,7 @@ test("after creating an issue via UI, it should be visible in the UI", async ({
 
   // 3. Submit the issue
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("createIssue");
-    }),
+    hlpPW.waitForGraphQL(page, "createIssue"),
     page.getByTestId("create-issue-button").click(),
   ]);
 
@@ -74,12 +65,7 @@ test("after creating an issue via API, edit it and assert via API", async ({
   await page.getByLabel("Edit issue title").filter({ visible: true }).click();
   await page.getByLabel("Title input").fill(newTitle);
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("updateIssue"); // ou le nom exact de l'opération
-    }),
+    hlpPW.waitForGraphQL(page, "updateIssue"),
     page.getByRole("button", { name: /^Save\b/ }).click(),
   ]);
 
@@ -88,12 +74,7 @@ test("after creating an issue via API, edit it and assert via API", async ({
   await page.getByRole("menuitem", { name: "Edit" }).click();
   await page.getByLabel("Markdown value").fill(newBody);
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("updateIssue");
-    }),
+    hlpPW.waitForGraphQL(page, "updateIssue"),
     page.getByRole("button", { name: /^Save\b/ }).click(),
   ]);
 
@@ -121,12 +102,7 @@ test("after creating an issue via API, close it and assert via API", async ({
 
   // 3. Close the issue via UI
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("updateIssueStateMutationCloseMutation");
-    }),
+    hlpPW.waitForGraphQL(page, "updateIssueStateMutationCloseMutation"),
     page.getByRole("button", { name: "Close issue" }).click(),
   ]);
 

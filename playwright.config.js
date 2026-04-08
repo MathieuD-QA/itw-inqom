@@ -10,7 +10,6 @@ module.exports = defineConfig({
   timeout: 60_000,
   retries: 0,
   workers: 1,
-  fullyParallel: true,
   use: {
     storageState,
     headless: true,

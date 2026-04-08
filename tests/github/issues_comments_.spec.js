@@ -22,12 +22,7 @@ test("after adding a comment via UI, it should be visible via API", async ({
     .getByPlaceholder("Use Markdown to format your comment")
     .fill(commentText);
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("addCommentMutation");
-    }),
+    hlpPW.waitForGraphQL(page, "addCommentMutation"),
     page.getByRole("button", { name: "Comment", exact: true }).click(),
   ]);
 
@@ -73,12 +68,7 @@ test("after adding a comment via API, edit it via UI and assert via API", async 
   await page.getByRole("menuitem", { name: "Edit" }).click();
   await page.getByLabel("Markdown value").fill(newBody);
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("updateIssueComment");
-    }),
+    hlpPW.waitForGraphQL(page, "updateIssueComment"),
     page.getByRole("button", { name: "Update comment" }).click(),
   ]);
 
@@ -120,18 +110,15 @@ test("after adding a comment via API, delete it via UI and assert via API", asyn
     .click();
   await page.getByRole("menuitem", { name: "Delete" }).click();
   await Promise.all([
-    page.waitForResponse((response) => {
-      if (!response.url().includes("/_graphql") || response.status() !== 200)
-        return false;
-      const postData = response.request().postData() || "";
-      return postData.includes("deleteIssueComment");
-    }),
+    hlpPW.waitForGraphQL(page, "deleteIssueComment"),
     page.getByRole("button", { name: "Delete", exact: true }).click(),
   ]);
 
   // 5. Assert via API
-  const comments = await hlpGitHub._getIssueComments(request, issue.number);
-  expect(comments).toHaveLength(0);
+  await expect.poll(
+    () => hlpGitHub._getIssueComments(request, issue.number).then(c => c.length),
+    { timeout: 10000 },
+  ).toBe(0);
 
   // 6. Cleanup
   await hlpGitHub._closeIssue(request, issue.number);

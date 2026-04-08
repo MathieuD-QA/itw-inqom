@@ -16,7 +16,23 @@ const getRandomNumber = async (min, max, decimal = 0) => {
   return Math.round(raw * factor) / factor
 }
 
+/**
+ * Returns a predicate for page.waitForResponse that matches a GitHub GraphQL
+ * response whose request postData contains the given operation name.
+ * If operationName is in the URL query-string instead (e.g. GET requests),
+ * it checks response.url() as a fallback.
+ */
+const waitForGraphQL = (page, operationName) =>
+  page.waitForResponse((response) => {
+    if (!response.url().includes('/_graphql') || response.status() !== 200)
+      return false
+    if (response.url().includes(operationName)) return true
+    const postData = response.request().postData() || ''
+    return postData.includes(operationName)
+  })
+
 module.exports = {
   getRandomLetters,
   getRandomNumber,
+  waitForGraphQL,
 }
