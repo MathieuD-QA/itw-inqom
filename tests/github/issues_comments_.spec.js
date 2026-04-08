@@ -115,10 +115,11 @@ test("after adding a comment via API, delete it via UI and assert via API", asyn
   ]);
 
   // 5. Assert via API
-  await expect.poll(
-    () => hlpGitHub._getIssueComments(request, issue.number).then(c => c.length),
-    { timeout: 10000 },
-  ).toBe(0);
+  await expect
+    .poll(() =>
+      hlpGitHub._getIssueComments(request, issue.number).then((c) => c.length),
+    )
+    .toBe(0);
 
   // 6. Cleanup
   await hlpGitHub._closeIssue(request, issue.number);
